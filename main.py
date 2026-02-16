@@ -1,4 +1,6 @@
 from fastapi import FastAPI, Query, Body, HTTPException
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional, Union
 
 app = FastAPI(title="Mini Blog", description="Esta es una API de ejemplo")
 
@@ -29,6 +31,61 @@ BLOG_POST = [
   }
 ]
 
+class Tag(BaseModel):
+  name: str = Field(..., min_length=3, max_length=50, description="El nombre del tag es requerido y debe tener entre 3 y 50 caracteres")
+  
+class Author(BaseModel):
+  name: str = Field(..., min_length=3, max_length=50, description="El nombre del autor es requerido y debe tener entre 3 y 50 caracteres")
+  email: str = Field(..., format="email", description="El email del autor es requerido y debe ser un email valido")
+
+# usando pydantic para validar los datos
+class PostBase(BaseModel):
+  title: str
+  content: str
+  tags: Optional[List[Tag]] = []
+  author: Optional[Author] = None
+
+  
+class PostCreate(PostBase):
+  title: Optional[str] = Field(...,
+                min_length=3, 
+                max_length=100,
+                description="El titulo del post es requerido y debe tener entre 3 y 100 caracteres",
+                example=["Mi primer post"]
+                )
+  content: Optional[str] = Field(
+                default="Contenido no disponible",
+                min_length=10,
+                max_length=1000, 
+                description="El contenido del post es requerido y debe tener entre 10 y 1000 caracteres",
+                example=["Este es el contenido de mi primer post"]
+                )
+  tags: List[Tag] = []
+  
+  # para haver validaciones mas complejas o personalizadas, se usa el field_validator
+  @field_validator("title")
+  @classmethod # para que se pueda usar la calse completa y poder acceder al nombre del modelo, etc
+  def not_allowed_title(cls, value: str) -> str:
+    if "spam" in value.lower():
+      raise ValueError("El titulo no puede contener spam")
+    return value # si todo sale vbien pasa el valor que le iba a dar, en este caso el titulo
+  
+
+class PostUpdate(BaseModel):
+  title: Optional[str] = None
+  content: Optional[str] = None
+  
+class PostPublic(PostBase): # aca como hereda de PostBase, ya tiene el title y el content
+  id: int
+  
+class PostSummary(BaseModel): # aca no podemos heredar de PostBase porque no quiero el content por ejemplo
+  id: int
+  title: str
+  
+  
+
+  
+
 
 @app.get("/")
 def home():
@@ -40,66 +97,57 @@ def list_posts_general():
   return {"data ": BLOG_POST}
 
 # Query params (define como queremos ese recurso, lo quiero traer filtrado, ordenado, etc)
-@app.get("/posts")
+@app.get("/posts", response_model=List[PostPublic]) # responder auna lista de muchos PostPublic
 def list_posts(query: str | None = Query(default=None, description="Texto para buscar en el titulo")):
   
   if query:
-   results = []
-   
-  #  podemos simplificar todo el if con un list comprehension
-  # results = [post for post in BLOG_POST if query.lower() in post["title"].lower()]
+    results = [post for post in BLOG_POST if query.lower() in post["title"].lower()]
+    return results
   
-  #  con un for seria 
-   for post in BLOG_POST:
-      if query.lower() in post["title"].lower():
-        results.append(post)
-
-   return {"data ": results, "query": query}
-  
-  return {"data ": BLOG_POST}
+  return BLOG_POST
 
 
 # Path params (forma parte de la url directamente, trae un recurso especifico)
 # el include_content es un query param
 # El Path forma parte de la URL, mientras que el Query Param va después del ?
-@app.get("/posts/{id}")
+@app.get("/posts/{id}", response_model=Union[PostPublic, PostSummary], response_description="Post encontrado") # el union es para se pueda evaluar que la respuesta sea de tipo PostPublic y PostSummary (en caso de que no tenga algo va con el segundo)
 def get_post(id: int, include_content: bool = Query(default=True, description="Si queremos traer el contenido del post")):
   for post in BLOG_POST:
     if post["id"] == id:
       if include_content:
-        return {"data": post}
+        return post
       return {"data": {"id": post["id"], "title": post["title"]}}
   
-  return {"message": "Post no encontrado"}
+  return HTTPException(status_code=404, detail="Post no encontrado")
 
 
 # Metodo POST
-@app.post("/posts")
-def create_post(post: dict = Body(...)):
-  if "title" not in post or "content" not in post:
-    return {"error": "El post debe tener un titulo y un contenido"}
-  
-  if not str(post["title"]).strip() or not str(post["content"]).strip():
-    return {"error": "El titulo y contenido no pueden estar vacios"}
-  
+@app.post("/posts", response_model=PostPublic, response_description="Post creado (OK)")
+# def create_post(post: dict = Body(...)):
+def create_post(post: PostCreate):
   new_id = (BLOG_POST[-1]["id"] + 1) if BLOG_POST else 1
-  new_post = {"id": new_id, "title": post["title"], "content": post["content"], "author": "Lautaro", "created_at": "2021-01-01", "updated_at": "2021-01-01"}
   
+  new_post = {"id": new_id, "title": post.title, "content": post.content, "tags": [tag.model_dump() for tag in post.tags], "author": post.author.model_dump() if post.author else None}
   BLOG_POST.append(new_post)
-  return {"message": "Post creado exitosamente", "data": new_post}
+  
+  return new_post
 
 
 # Metodo PUT
-@app.put("/posts/{post_id}")
-def update_post(post_id: int, data: dict = Body(...)): # los tres puntitos indican que es obligatorio mandar el body
+@app.put("/posts/{post_id}", response_model=PostPublic, response_description="Post actualizado", response_model_exclude_none=True)
+def update_post(post_id: int, data: PostUpdate): # los tres puntitos indican que es obligatorio mandar el body
   for post in BLOG_POST:
     if post["id"] == post_id:
-      if "title" in data:
-        post["title"] = data["title"]
-      if "content" in data:
-        post["content"] = data["content"]
-      post["updated_at"] = "2021-01-01"
-      return {"message": "Post actualizado exitosamente", "data": post}
+      
+      # esto sirve para convertir el objeto PostUpdate a un diccionario
+      # y asi poder manejarlo como tal
+      payload = data.model_dump() # {title: "Nuevo titulo", content: "Nuevo contenido"}
+      
+      if "title" in payload:
+        post["title"] = payload["title"]
+      if "content" in payload:
+        post["content"] = payload["content"]
+      return post
   
     raise HTTPException(status_code=404, detail="Post no encontrado") # esto es para desatar un error personalizado
     # raise → Interrumpe la ejecución y lanza un error.
