@@ -92,3 +92,19 @@ Durante las clases podrás encontrar algunos enlaces adjuntos, pero puedes consu
 - [FastAPI — Documentación](https://fastapi.tiangolo.com/)
 - [Pydantic — Documentación](https://docs.pydantic.dev/latest/)
 - [JSON Schema — Sitio oficial](https://json-schema.org/)
+
+# Sección 2
+
+Hola, a todas y a todos.
+
+En esta sección se tratarán los siguientes temas:
+
+- ¿Qué es Pydantic y por qué lo usa FastAPI?
+- Pydantic
+- Modelos básicos con Pydantic
+- Validaciones automáticas con Pydantic
+- Campos opcionales y valores por defecto
+- Field y validaciones avanzadas
+- Validaciones personalizadas
+- Modelos de respuesta
+- Métodos anidados
