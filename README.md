@@ -41,6 +41,12 @@ source venv/Scripts/activate
 pip install -r requirements.txt
 ```
 
+5. Generar o actualizar `requirements.txt`:
+
+```bash
+pip freeze > requirements.txt
+```
+
 ## Uso
 
 Ejecuta la aplicación:
@@ -108,3 +114,16 @@ En esta sección se tratarán los siguientes temas:
 - Validaciones personalizadas
 - Modelos de respuesta
 - Métodos anidados
+
+# Sección 3
+
+En esta sección se tratarán los siguientes temas:
+
+- Correcciones pequeñas en nuestro código.
+- Repaso de path parameter y query parameters.
+- Validaciones Path Parameters.
+- Validaciones Query Parameters.
+- Páginación y orden con Query Parameters
+- Endpoint con metadatos
+- Multiples valores en QueryParams con lista.
+- QueryParam deprecated
