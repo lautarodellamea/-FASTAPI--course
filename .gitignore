@@ -131,3 +131,7 @@ dmypy.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Base de datos local / datos de volumen Docker
+blog.db
+postgres/
