@@ -127,3 +127,35 @@ En esta sección se tratarán los siguientes temas:
 - Endpoint con metadatos
 - Multiples valores en QueryParams con lista.
 - QueryParam deprecated
+
+# Sección 4
+
+En esta sección se tratarán los siguientes temas:
+
+- Bases de datos relacionales con FastAPI.
+- Configuración de SQLAlchemy con FastAPI.
+- Crear un post con base de datos.
+- Listar posts con base de datos.
+- Obtener, editar y eliminar post con base de datos.
+
+¿Cuál elegir? Si tu proyecto es pequeño, nuevo o es un prototipo con FastAPI es mejor ocupar SQLModel. Si tu proyecto es para empresas grandes o medianas es más probable que te encuentres con SQLAlchemy y es más probable encontrarlo en el mercado laboral.
+
+Intalar slqachemy y el driver de conexion para postgresql
+
+````
+ pip install "sqlalchemy>2.0"
+ pip install "psycopg[binary]"
+```
+
+ ## Cambios en sqlite
+ Cuando aplicamos configuraciones a la base de datos en sqlite porfavor borrar el archivo que se genera asi se crea uno nuevo con la nueva configuracion
+
+## Enlaces
+
+Durante las clases podrás encontrar algunos enlaces adjuntos pero puedes consultarlos antes o usar este artículo como referencia para acceder a ellos más fácil:
+
+- [FastAPI — Documentación](https://fastapi.tiangolo.com/)
+- [FastAPI — Bases de datos (SQL)](https://fastapi.tiangolo.com/tutorial/sql-databases/)
+- [SQLAlchemy — Documentación](https://docs.sqlalchemy.org/)
+- [Pydantic — Documentación](https://docs.pydantic.dev/latest/)
+````
