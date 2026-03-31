@@ -49,10 +49,16 @@ pip freeze > requirements.txt
 
 ## Uso
 
-Ejecuta la aplicación:
+Ejecuta la aplicación **desde la raíz del repositorio** (donde está este `README`):
 
 ```bash
 uvicorn main:app --reload
+```
+
+Equivalente (misma app definida en `app/main.py`):
+
+```bash
+uvicorn app.main:app --reload
 ```
 
 La API estará disponible en: http://localhost:8000
@@ -159,3 +165,31 @@ Durante las clases podrás encontrar algunos enlaces adjuntos pero puedes consul
 - [FastAPI — Bases de datos (SQL)](https://fastapi.tiangolo.com/tutorial/sql-databases/)
 - [SQLAlchemy — Documentación](https://docs.sqlalchemy.org/)
 - [Pydantic — Documentación](https://docs.pydantic.dev/latest/)
+
+# Sección 5 — Arquitectura y modularización del proyecto
+
+En esta sección se tratarán los siguientes temas:
+
+- Estructura de archivos
+- Arquitectura de capas
+- Archivos para base de datos separado
+- Schemas y DTO
+- Repository
+- Router
+- Convertir a `main.py` como archivo principal y de inicio
+- y más…
+
+Durante las clases podrás encontrar algunos enlaces adjuntos pero puedes consultarlos antes o usar este artículo como referencia para acceder a ellos más fácil:
+
+## Documentación
+
+- [FastAPI — Documentación](https://fastapi.tiangolo.com/)
+
+## Gist
+
+- JSON para crear posts *(enlace al gist en el material de la clase)*
+
+## Enlaces útiles
+
+- [File structure — FastAPI (Bigger Applications)](https://fastapi.tiangolo.com/tutorial/bigger-applications/#an-example-file-structure)
+- [Structuring a FastAPI project — tutorial completo (bigger applications)](https://fastapi.tiangolo.com/tutorial/bigger-applications/)
